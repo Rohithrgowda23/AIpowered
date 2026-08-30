@@ -1,0 +1,348 @@
+.container {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.doc {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: calc(var(--nav-height) + 32px) 24px 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pageHead {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.pageHead h1 {
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-weight: 700;
+}
+
+/* Score cards */
+.report {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 32px;
+    place-items: center;
+}
+
+.sc1, .sc2 {
+    width: 100%;
+    max-width: 220px;
+}
+
+/* Summary */
+.summaryCard {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.expBadge {
+    align-self: flex-start;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    background: var(--gradient-brand-soft);
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #f2e2bb;
+    text-transform: capitalize;
+}
+
+.summaryText {
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.7;
+}
+
+/* JD cards */
+.jdCard {
+    padding: 26px 28px;
+}
+
+.jdCard h2 {
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+}
+
+.jdRole {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.jdSubHeading {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 16px 0 8px;
+}
+
+.jdText {
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.jdMetaRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.jdList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.jdList li {
+    position: relative;
+    padding-left: 18px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+.jdList li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+}
+
+.tagWrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tagJd {
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.tagJdKeyword {
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    background: rgba(212, 175, 106, 0.1);
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    font-size: 0.8rem;
+    color: var(--color-accent);
+}
+
+/* Skills */
+.skillsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.skillsBox {
+    padding: 24px;
+}
+
+.skillsBox h2 {
+    font-size: 1rem;
+    margin-bottom: 14px;
+}
+
+.tagGood {
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--color-success-bg);
+    border: 1px solid rgba(47, 212, 128, 0.35);
+    color: var(--color-success);
+    font-size: 0.8rem;
+}
+
+.tagMissing {
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--color-error-bg);
+    border: 1px solid rgba(255, 92, 108, 0.35);
+    color: var(--color-error);
+    font-size: 0.8rem;
+}
+
+/* Review grid */
+.rev {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.pros, .cons, .sug, .jobs {
+    padding: 24px;
+    grid-column: span 1;
+}
+
+.jobs {
+    grid-column: 1 / -1;
+}
+
+.pros h2, .cons h2, .sug h2, .jobs h2 {
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.pros h2 i { color: var(--color-success); }
+.cons h2 i { color: var(--color-error); }
+.sug h2 i { color: var(--color-warning); }
+.jobs h2 i { color: var(--color-primary); }
+
+.pros ul, .cons ul, .sug ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pros li, .cons li, .sug li {
+    position: relative;
+    padding-left: 18px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.pros li::before, .cons li::before, .sug li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.pros li { color: var(--text-secondary); }
+.pros li::before { background: var(--color-success); }
+.cons li::before { background: var(--color-error); }
+.sug li::before { background: var(--color-warning); }
+
+/* Jobs */
+.jobidiv {
+    padding: 18px 0;
+    border-top: 1px solid var(--border-subtle);
+}
+.jobidiv:first-of-type {
+    border-top: none;
+    padding-top: 4px;
+}
+
+.jobtitle {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.jobMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.jobMeta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.jobMeta i {
+    color: var(--color-primary);
+}
+
+.jobdes {
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.joblink {
+    display: inline-flex;
+}
+
+.noJobsMsg {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 0.9rem;
+}
+
+/* Error state */
+.errWrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    padding: 0 24px;
+}
+
+.errWrap i {
+    font-size: 2.2rem;
+    color: var(--color-warning);
+}
+
+.errinfo {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    max-width: 420px;
+}
+
+@media (max-width: 768px) {
+    .report {
+        grid-template-columns: 1fr;
+    }
+    .skillsRow, .rev {
+        grid-template-columns: 1fr;
+    }
+    .jobs {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 480px) {
+    .summaryCard, .jdCard, .skillsBox, .pros, .cons, .sug, .jobs {
+        padding: 18px;
+    }
+}

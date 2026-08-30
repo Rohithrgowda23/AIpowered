@@ -1,0 +1,47 @@
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    background: rgba(5, 7, 13, 0.86);
+    backdrop-filter: blur(6px);
+}
+
+.ring {
+    position: relative;
+    width: 64px;
+    height: 64px;
+}
+
+.ring span {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: var(--color-primary);
+    animation: spin 1s linear infinite;
+}
+
+.ring span:nth-child(2) {
+    inset: 8px;
+    border-top-color: var(--color-accent);
+    animation-duration: 1.4s;
+    animation-direction: reverse;
+}
+
+.ring span:nth-child(3) {
+    inset: 16px;
+    border-top-color: var(--color-primary-2);
+    animation-duration: 0.8s;
+}
+
+.label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+}

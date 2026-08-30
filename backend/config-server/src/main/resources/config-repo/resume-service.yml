@@ -1,0 +1,10 @@
+server:
+  port: 8082
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 3MB
+      max-request-size: 3MB
+
+JWT_SECRET: ${JWT_SECRET}

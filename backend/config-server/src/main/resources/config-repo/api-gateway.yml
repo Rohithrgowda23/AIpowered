@@ -1,0 +1,44 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+
+          - id: auth-service
+            uri: lb://AUTH-SERVICE
+            predicates:
+              - Path=/api/auth/**
+
+          - id: oauth2
+            uri: lb://AUTH-SERVICE
+            predicates:
+              - Path=/oauth2/**,/login/oauth2/**
+
+          - id: resume-service
+            uri: lb://RESUME-SERVICE
+            predicates:
+              - Path=/api/resumes/**
+
+          - id: analysis-service
+            uri: lb://ANALYSIS-SERVICE
+            predicates:
+              - Path=/api/analyses/**
+
+          - id: report-service
+            uri: lb://REPORT-SERVICE
+            predicates:
+              - Path=/api/reports/**
+
+          - id: job-service
+            uri: lb://JOB-SERVICE
+            predicates:
+              - Path=/api/jobs/**
+
+JWT_SECRET: ${JWT_SECRET}
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

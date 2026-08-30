@@ -1,0 +1,23 @@
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/resume_analyser?useSSL=false&serverTimezone=UTC}
+    username: ${DATABASE_USERNAME:root}
+    password: ${DATABASE_PASSWORD:2003}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+JWT_SECRET: ${JWT_SECRET}
+
+job-service:
+  base-url: ${JOB_SERVICE_URL:http://localhost:8085}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}

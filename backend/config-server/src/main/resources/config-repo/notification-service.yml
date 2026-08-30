@@ -1,0 +1,7 @@
+server:
+  port: 8086
+
+apiKey: ${BREVO_API_KEY}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}

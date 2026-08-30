@@ -1,0 +1,354 @@
+.container {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.page {
+    padding: calc(var(--nav-height) + 40px) 24px 64px;
+    max-width: var(--content-max);
+    margin: 0 auto;
+}
+
+.pageHead {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 32px;
+}
+
+.pageHead h1 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+}
+
+.pageHead p {
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.uploadcontainer {
+    padding: 32px;
+}
+
+.uploadcontainer form {
+    display: flex;
+    flex-direction: column;
+}
+
+.uploadcontainerlabel {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.optionalTag {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+.uploadcontainer input[type="text"] {
+    padding: 13px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-size: 0.92rem;
+    margin-bottom: 20px;
+}
+
+.uploadcontainer input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.jdTextarea {
+    padding: 13px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.jdTextarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.jdCount {
+    align-self: flex-end;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 6px 0 20px;
+}
+
+.fileinp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 32px 20px;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    cursor: pointer;
+    text-align: center;
+    margin-bottom: 22px;
+    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+
+.fileinp:hover {
+    border-color: var(--color-primary);
+    background: var(--surface-3);
+}
+
+.fileIcon {
+    font-size: 1.6rem;
+    color: var(--color-primary);
+    margin-bottom: 6px;
+}
+
+.fileinp p {
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 0.9rem;
+}
+
+.fileinp h5 {
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-3);
+    border: 1px solid var(--border-subtle);
+}
+
+.spn {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.guidelinescontainer {
+    padding: 28px;
+}
+
+.guidelinescontainer h2 {
+    font-size: 1.1rem;
+    margin-bottom: 18px;
+}
+
+.guidelinescontainer ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.guidelinescontainer li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.guidelinescontainer li i {
+    color: var(--color-primary);
+    margin-top: 3px;
+}
+
+.guidelinescontainer b {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .uploadcontainer, .guidelinescontainer {
+        padding: 22px;
+    }
+}
+
+.fileError {
+    color: var(--color-error);
+    font-size: 0.8rem;
+    margin: -12px 0 16px;
+}
+
+/* ---------- ANALYSIS PROGRESS ---------- */
+.progressWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - var(--nav-height) - 40px);
+}
+
+.progressCard {
+    width: 100%;
+    max-width: 480px;
+    padding: 40px 36px;
+    text-align: center;
+}
+
+.progressCard h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 14px 0 24px;
+}
+
+.progressBarTrack {
+    height: 8px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-3);
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progressBarFill {
+    height: 100%;
+    border-radius: var(--radius-pill);
+    background: var(--gradient-brand);
+    transition: width 0.5s var(--ease-out);
+}
+
+.progressPct {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 26px;
+}
+
+.stepList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    text-align: left;
+    margin-bottom: 22px;
+}
+
+.stepList li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color var(--dur-fast) var(--ease-out);
+}
+
+.stepIcon {
+    width: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+}
+
+.step_pending {
+    color: var(--text-muted);
+}
+.step_pending .stepIcon {
+    color: var(--text-muted);
+}
+
+.step_active {
+    color: var(--text-primary);
+}
+.step_active .stepIcon {
+    color: var(--color-primary);
+}
+
+.step_done {
+    color: var(--text-secondary);
+}
+.step_done .stepIcon {
+    color: var(--color-success);
+}
+
+.progressMsg {
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 0.88rem;
+}
+
+.slowNotice {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--gradient-brand-soft);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+/* ---------- ANALYSIS ERROR ---------- */
+.errorCard {
+    width: 100%;
+    max-width: 460px;
+    padding: 40px 36px;
+    text-align: center;
+}
+
+.errorIcon {
+    font-size: 2rem;
+    color: var(--color-error);
+    margin-bottom: 14px;
+}
+
+.errorCard h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.errorReason {
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 26px;
+}
+
+.errorReasonDetail {
+    color: var(--text-muted);
+    font-size: 0.84rem;
+}
+
+.errorActions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+    .progressCard, .errorCard {
+        padding: 30px 22px;
+    }
+}

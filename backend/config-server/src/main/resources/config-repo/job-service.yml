@@ -1,0 +1,10 @@
+server:
+  port: 8085
+
+adzuna:
+  app-id: ${ADZUNA_APP_ID:c662e0e2}
+  app-key: ${ADZUNA_APP_KEY:3acd521304e981d0f281528c4733041d}
+  country: ${ADZUNA_COUNTRY:gb}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}
