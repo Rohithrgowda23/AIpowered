@@ -237,4 +237,5 @@ architectural decision above (why shared DB, why gateway doesn't set trust
 headers, why job search is decoupled from analysis, sequencing for an
 incremental real-world rollout, etc).
 #   A I p o w e r e d  
+ #   A I p o w e r e d  
  
