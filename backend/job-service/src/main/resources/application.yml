@@ -9,7 +9,11 @@ spring:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
 
 eureka:
+  client:
+    serviceUrl:
+      defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
+    fetch-registry: true
+    register-with-eureka: true
   instance:
-    hostname: localhost
     prefer-ip-address: false
-    instance-id: localhost:${spring.application.name}:${server.port}
+    hostname: api-gateway-qkib.onrender.com

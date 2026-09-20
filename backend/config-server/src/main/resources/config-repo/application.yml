@@ -1,14 +1,12 @@
 eureka:
   client:
-    service-url:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
-
-    register-with-eureka: true
+    serviceUrl:
+      defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
     fetch-registry: true
-
+    register-with-eureka: true
   instance:
-    hostname: localhost
     prefer-ip-address: false
+    hostname: api-gateway-qkib.onrender.com
 
 management:
   endpoints:
