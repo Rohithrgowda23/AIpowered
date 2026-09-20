@@ -3,8 +3,8 @@ server:
 
 spring:
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://aipowered-rohithgxwda001-21cd.l.aivencloud.com:14178/defaultdb?sslmode=require}
-    username: ${DATABASE_USERNAME:avnadmin}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
