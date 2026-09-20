@@ -6,7 +6,10 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: false
-    hostname: api-gateway-qkib.onrender.com
+    hostname: https://ai-config-server.onrender.com   # ⚠️ waiting on real URL
+    non-secure-port: 443
+    secure-port-enabled: true
+    secure-port: 443
 
 management:
   endpoints:

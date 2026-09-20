@@ -16,4 +16,7 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: false
-    hostname: api-gateway-qkib.onrender.com
+    hostname: https://auth-service-p0ex.onrender.com   # ⚠️ replace xxxx with auth-service's real Render URL
+    non-secure-port: 443
+    secure-port-enabled: true
+    secure-port: 443

@@ -17,3 +17,6 @@ eureka:
   instance:
     prefer-ip-address: false
     hostname: api-gateway-qkib.onrender.com
+    non-secure-port: 443
+    secure-port-enabled: true
+    secure-port: 443

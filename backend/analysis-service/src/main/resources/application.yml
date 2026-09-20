@@ -16,4 +16,7 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: false
-    hostname: api-gateway-qkib.onrender.com
+    hostname: analysis-service-qf75.onrender.com   # ✅ its own URL, from your earlier log
+    non-secure-port: 443
+    secure-port-enabled: true
+    secure-port: 443

@@ -4,8 +4,8 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://dpg-danppr3m8hqs73c4qc5g-a:5432/ai_resume_analyser_ioxq
-    username: ai_resume_user
-    password: 0N9sstyPueKT7d0ay0LKeevN8e4Rvzc9
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -22,8 +22,8 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
 
-    jwt:
-      secret: ${JWT_SECRET}
+jwt:
+  secret: ${JWT_SECRET}
 
 frontend:
   base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
