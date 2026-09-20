@@ -14,7 +14,7 @@ import java.util.Optional;
 @Component
 public class LightweightJwtValidator {
 
-    @Value("${jwt.secret}")
+    @Value("${JWT_SECRET}")
     private String secret;
 
     public Optional<String> validateAndGetEmail(String bearerToken) {

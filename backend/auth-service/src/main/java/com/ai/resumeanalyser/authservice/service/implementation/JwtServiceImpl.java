@@ -15,8 +15,8 @@ import java.util.function.Function;
 @Service
 public class JwtServiceImpl implements JwtService {
 
-    @Value("${JWT_SECRET}")
-    private String key;
+    @Value("${jwt.secret}")
+    private String secret;
 
     @Override
     public String generateToken(String email) {
@@ -26,14 +26,14 @@ public class JwtServiceImpl implements JwtService {
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 20L * 24 * 60 * 60 * 1000))
-                .signWith(Keys.hmacShaKeyFor(key.getBytes()), Jwts.SIG.HS256)
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), Jwts.SIG.HS256)
                 .compact();
     }
 
     @Override
     public Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(key.getBytes()))
+                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
