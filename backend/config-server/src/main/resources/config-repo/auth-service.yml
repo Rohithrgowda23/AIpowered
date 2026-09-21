@@ -39,3 +39,17 @@ notification-service:
 
 internal:
   api-key: ${INTERNAL_API_KEY}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+
+  instance:
+    prefer-ip-address: false
+    hostname: auth-service-p0ex.onrender.com
+    non-secure-port: 443
+    secure-port-enabled: true
+    secure-port: 443
