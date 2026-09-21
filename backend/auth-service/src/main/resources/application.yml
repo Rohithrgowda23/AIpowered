@@ -11,7 +11,7 @@ spring:
 
 eureka:
   client:
-    service-url:
+    serviceUrl:
       defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
     fetch-registry: true
     register-with-eureka: true
