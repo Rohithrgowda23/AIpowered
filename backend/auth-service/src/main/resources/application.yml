@@ -1,5 +1,6 @@
 server:
   port: ${PORT:8081}
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -14,6 +15,7 @@ eureka:
       defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
     fetch-registry: true
     register-with-eureka: true
+
   instance:
     prefer-ip-address: false
     hostname: auth-service-p0ex.onrender.com

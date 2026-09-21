@@ -9,7 +9,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -18,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final UserDetailsService userDetailsService;
+    private final org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
     private final SuccessHandler successHandler;
     private final FailureHandler failureHandler;
@@ -38,13 +37,42 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
+
                 .cors(cors -> cors.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * OAuth2 login needs a session to store the
+                 * authorization request between:
+                 *
+                 * /oauth2/authorization/google
+                 *
+                 * and:
+                 *
+                 * /login/oauth2/code/google
+                 *
+                 * Therefore STATELESS must NOT be used here.
+                 */
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+
+                        // Google OAuth2 endpoints
+                        .requestMatchers(
+                                "/oauth2/**",
+                                "/login/oauth2/**"
+                        ).permitAll()
+
+                        // Internal service endpoints
                         .requestMatchers("/internal/**").permitAll()
+
+                        // Public authentication APIs
                         .requestMatchers(
                                 "/api/auth/verify-email",
                                 "/api/auth/register",
@@ -53,21 +81,32 @@ public class SecurityConfiguration {
                                 "/api/auth/verify-reset-otp",
                                 "/api/auth/reset-password"
                         ).permitAll()
+
+                        // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
+
                 .oauth2Login(oauth -> oauth
                         .successHandler(successHandler)
                         .failureHandler(failureHandler)
                 )
+
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(
                         (request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
-                            response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                            response.getWriter().write(
+                                    "{\"error\":\"Unauthorized\"}"
+                            );
                         }
                 ))
+
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+                .addFilterBefore(
+                        jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
