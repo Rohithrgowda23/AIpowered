@@ -7,11 +7,11 @@ spring:
     name: auth-service
 
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:}
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
 
 eureka:
   client:
-    serviceUrl:
+    service-url:
       defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
     fetch-registry: true
     register-with-eureka: true
