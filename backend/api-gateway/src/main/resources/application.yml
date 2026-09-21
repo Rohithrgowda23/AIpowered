@@ -8,16 +8,60 @@ spring:
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
 
+  cloud:
+    gateway:
+      routes:
+
+        # =========================
+        # AUTH SERVICE
+        # =========================
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+
+        # =========================
+        # GOOGLE OAUTH2 AUTHORIZATION
+        # =========================
+        - id: oauth2-authorization
+          uri: lb://auth-service
+          predicates:
+            - Path=/oauth2/**
+
+        # =========================
+        # GOOGLE OAUTH2 CALLBACK
+        # =========================
+        - id: oauth2-callback
+          uri: lb://auth-service
+          predicates:
+            - Path=/login/oauth2/**
+
+        # =========================
+        # USER SERVICE
+        # =========================
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+
+        # =========================
+        # RESUME / ANALYSIS SERVICE
+        # =========================
+        - id: job-service
+          uri: lb://job-service
+          predicates:
+            - Path=/api/jobs/**
+
 eureka:
   client:
     serviceUrl:
       defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
     fetch-registry: true
     register-with-eureka: true
+
   instance:
     prefer-ip-address: false
     hostname: api-gateway-tin9.onrender.com
     non-secure-port: 443
     secure-port-enabled: true
     secure-port: 443
-

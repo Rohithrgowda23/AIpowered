@@ -4,12 +4,6 @@ eureka:
       defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
     fetch-registry: true
     register-with-eureka: true
-  instance:
-    prefer-ip-address: false
-    hostname: https://ai-config-server.onrender.com   # ⚠️ waiting on real URL
-    non-secure-port: 443
-    secure-port-enabled: true
-    secure-port: 443
 
 management:
   endpoints:

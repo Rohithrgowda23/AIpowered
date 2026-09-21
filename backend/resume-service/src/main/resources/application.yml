@@ -16,7 +16,7 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: false
-    hostname: https://resume-service-d5jv.onrender.com   # ⚠️ replace with real subdomain
+    hostname: resume-service-d5jv.onrender.com
     non-secure-port: 443
     secure-port-enabled: true
     secure-port: 443

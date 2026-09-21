@@ -16,7 +16,7 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: false
-    hostname: https://notification-service-oooz.onrender.com   # ⚠️ replace xxxx with real subdomain
+    hostname: notification-service-oooz.onrender.com
     non-secure-port: 443
     secure-port-enabled: true
     secure-port: 443

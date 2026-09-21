@@ -16,7 +16,7 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: false
-    hostname: https://auth-service-p0ex.onrender.com   # ⚠️ replace xxxx with auth-service's real Render URL
+    hostname: auth-service-p0ex.onrender.com
     non-secure-port: 443
     secure-port-enabled: true
     secure-port: 443

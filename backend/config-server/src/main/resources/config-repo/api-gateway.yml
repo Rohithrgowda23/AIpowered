@@ -1,12 +1,66 @@
 server:
-  port: ${PORT:8081}
+  port: ${PORT:8080}
 
 spring:
   application:
-    name: auth-service
+    name: api-gateway
 
-  config:
-    import: optional:configserver:${CONFIG_SERVER_URL:}
+  cloud:
+    gateway:
+      routes:
+
+        # =========================
+        # AUTH SERVICE
+        # =========================
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+
+        # =========================
+        # GOOGLE OAUTH2
+        # =========================
+        - id: oauth2-authorization
+          uri: lb://auth-service
+          predicates:
+            - Path=/oauth2/**
+
+        - id: oauth2-callback
+          uri: lb://auth-service
+          predicates:
+            - Path=/login/oauth2/**
+
+        # =========================
+        # USER SERVICE
+        # =========================
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+
+        # =========================
+        # ANALYSIS SERVICE
+        # =========================
+        - id: analysis-service
+          uri: lb://analysis-service
+          predicates:
+            - Path=/api/analyses/**
+
+        # =========================
+        # REPORT SERVICE
+        # =========================
+        - id: report-service
+          uri: lb://report-service
+          predicates:
+            - Path=/api/reports/**
+
+        # =========================
+        # JOB SERVICE
+        # =========================
+        - id: job-service
+          uri: lb://job-service
+          predicates:
+            - Path=/api/jobs/**
 
 eureka:
   client:
@@ -14,9 +68,10 @@ eureka:
       defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
     fetch-registry: true
     register-with-eureka: true
+
   instance:
     prefer-ip-address: false
-    hostname: auth-service-p0ex.onrender.com
+    hostname: api-gateway-tin9.onrender.com
     non-secure-port: 443
     secure-port-enabled: true
     secure-port: 443
