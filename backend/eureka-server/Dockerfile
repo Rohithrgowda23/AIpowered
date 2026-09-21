@@ -9,10 +9,6 @@ COPY src ./src
 
 RUN mvn clean package -DskipTests -B
 
-RUN echo "===== PACKAGED EUREKA CONFIG =====" && \
-    jar xf target/*.jar BOOT-INF/classes/application.yml && \
-    cat BOOT-INF/classes/application.yml
-
 FROM eclipse-temurin:17-jre
 
 WORKDIR /app
