@@ -5,10 +5,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(
-        name = "notification-service",
-        url = "${notification-service.base-url}"
-)
+@FeignClient(name = "notification-service",
+        url = "${notification-service.base-url}")
+
 public interface NotificationClient {
 
     @PostMapping("/api/notifications/otp-email")
