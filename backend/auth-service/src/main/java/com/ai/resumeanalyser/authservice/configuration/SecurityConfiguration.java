@@ -72,6 +72,9 @@ public class SecurityConfiguration {
                         // Internal service endpoints
                         .requestMatchers("/internal/**").permitAll()
 
+                        // Render health checks / actuator
+                        .requestMatchers("/actuator/**").permitAll()
+
                         // Public authentication APIs
                         .requestMatchers(
                                 "/api/auth/verify-email",
