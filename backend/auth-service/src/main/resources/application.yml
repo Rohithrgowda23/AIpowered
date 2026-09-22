@@ -9,6 +9,14 @@ spring:
   config:
     import: configserver:${CONFIG_SERVER_URL:http://localhost:8888}
 
+    cloud:
+      config:
+        retry:
+          max-attempts: 6
+          initial-interval: 2000
+          max-interval: 10000
+          multiplier: 1.5
+
   datasource:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
