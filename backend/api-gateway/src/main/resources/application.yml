@@ -83,6 +83,20 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
 
+    eureka:
+      client:
+        serviceUrl:
+          defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
+        fetch-registry: true
+        register-with-eureka: true
+        registry-fetch-interval-seconds: 10
+
+    spring:
+      cloud:
+        loadbalancer:
+          cache:
+            ttl: 5s
+
   instance:
     prefer-ip-address: false
     hostname: api-gateway-tin9.onrender.com
