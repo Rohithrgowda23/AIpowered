@@ -15,9 +15,9 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
 
-  instance:
-    prefer-ip-address: false
-    hostname: job-service-90kz.onrender.com
+    instance:
+      prefer-ip-address: false
+      hostname: job-service-oyk8.onrender.com
     non-secure-port-enabled: false
     secure-port-enabled: true
     secure-port: 443
