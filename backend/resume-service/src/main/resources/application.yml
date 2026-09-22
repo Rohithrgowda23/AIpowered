@@ -17,6 +17,8 @@ eureka:
   instance:
     prefer-ip-address: false
     hostname: resume-service-d5jv.onrender.com
-    non-secure-port: 443
+    non-secure-port-enabled: false
     secure-port-enabled: true
     secure-port: 443
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

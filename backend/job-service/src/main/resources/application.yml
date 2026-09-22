@@ -14,9 +14,12 @@ eureka:
       defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
     fetch-registry: true
     register-with-eureka: true
+
   instance:
     prefer-ip-address: false
     hostname: job-service-90kz.onrender.com
-    non-secure-port: 443
+    non-secure-port-enabled: false
     secure-port-enabled: true
     secure-port: 443
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

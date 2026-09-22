@@ -23,6 +23,8 @@ eureka:
   instance:
     prefer-ip-address: false
     hostname: auth-service-p0ex.onrender.com
-    non-secure-port: 443
+    non-secure-port-enabled: false
     secure-port-enabled: true
     secure-port: 443
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

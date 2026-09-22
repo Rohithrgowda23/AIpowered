@@ -45,7 +45,23 @@ spring:
             - Path=/api/users/**
 
         # =========================
-        # RESUME / ANALYSIS SERVICE
+        # ANALYSIS SERVICE
+        # =========================
+        - id: analysis-service
+          uri: lb://analysis-service
+          predicates:
+            - Path=/api/analyses/**
+
+        # =========================
+        # REPORT SERVICE
+        # =========================
+        - id: report-service
+          uri: lb://report-service
+          predicates:
+            - Path=/api/reports/**
+
+        # =========================
+        # JOB SERVICE
         # =========================
         - id: job-service
           uri: lb://job-service
@@ -62,6 +78,8 @@ eureka:
   instance:
     prefer-ip-address: false
     hostname: api-gateway-tin9.onrender.com
-    non-secure-port: 443
+    non-secure-port-enabled: false
     secure-port-enabled: true
     secure-port: 443
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
