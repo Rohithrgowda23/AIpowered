@@ -66,24 +66,11 @@ public class PreviousTable {
     @Column(name = "suggestions", length = 450)
     private List<String> suggestions;
 
-    // =====================================================================
-    // NEW: Job Description support. These fields are purely additive -
-    // "roles" (Job Role) above is completely untouched and still drives
-    // the existing resume-scoring workflow on its own.
-    // =====================================================================
 
-    /**
-     * Raw job description text as typed/pasted by the user. Optional -
-     * existing flows that never send a job description simply store "".
-     */
     @Column(length = 6000)
     private String jobDescription;
 
-    /**
-     * Experience level extracted from the job description (e.g. "Mid", "Senior").
-     * Distinct from `experienceLevel` above, which is the CANDIDATE's level
-     * inferred from their resume.
-     */
+
     private String jdExperienceLevel;
 
     @ElementCollection

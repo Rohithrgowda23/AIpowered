@@ -43,20 +43,7 @@ public class SecurityConfiguration {
 
                 .cors(cors -> cors.disable())
 
-                /*
-                 * IMPORTANT:
-                 *
-                 * OAuth2 login needs a session to store the
-                 * authorization request between:
-                 *
-                 * /oauth2/authorization/google
-                 *
-                 * and:
-                 *
-                 * /login/oauth2/code/google
-                 *
-                 * Therefore STATELESS must NOT be used here.
-                 */
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
