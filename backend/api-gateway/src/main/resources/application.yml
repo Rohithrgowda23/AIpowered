@@ -6,96 +6,65 @@ spring:
     name: api-gateway
 
   config:
-    import: configserver:${CONFIG_SERVER_URL:http://localhost:8888}
-
-    cloud:
-      config:
-        retry:
-          max-attempts: 6
-          initial-interval: 2000
-          max-interval: 10000
-          multiplier: 1.5
+    import: "configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
   cloud:
+    config:
+      retry:
+        max-attempts: 6
+        initial-interval: 2000
+        max-interval: 10000
+        multiplier: 1.5
+
     gateway:
       routes:
 
-        # =========================
-        # AUTH SERVICE
-        # =========================
         - id: auth-service
           uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
 
-        # =========================
-        # GOOGLE OAUTH2 AUTHORIZATION
-        # =========================
         - id: oauth2-authorization
           uri: lb://auth-service
           predicates:
             - Path=/oauth2/**
 
-        # =========================
-        # GOOGLE OAUTH2 CALLBACK
-        # =========================
         - id: oauth2-callback
           uri: lb://auth-service
           predicates:
             - Path=/login/oauth2/**
 
-        # =========================
-        # USER SERVICE
-        # =========================
         - id: user-service
           uri: lb://user-service
           predicates:
             - Path=/api/users/**
 
-        # =========================
-        # ANALYSIS SERVICE
-        # =========================
         - id: analysis-service
           uri: lb://analysis-service
           predicates:
             - Path=/api/analyses/**
 
-        # =========================
-        # REPORT SERVICE
-        # =========================
         - id: report-service
           uri: lb://report-service
           predicates:
             - Path=/api/reports/**
 
-        # =========================
-        # JOB SERVICE
-        # =========================
         - id: job-service
           uri: lb://job-service
           predicates:
             - Path=/api/jobs/**
 
+    loadbalancer:
+      cache:
+        ttl: 5s
+
 eureka:
   client:
-    serviceUrl:
+    service-url:
       defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
     fetch-registry: true
     register-with-eureka: true
-
-    eureka:
-      client:
-        serviceUrl:
-          defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
-        fetch-registry: true
-        register-with-eureka: true
-        registry-fetch-interval-seconds: 10
-
-    spring:
-      cloud:
-        loadbalancer:
-          cache:
-            ttl: 5s
+    registry-fetch-interval-seconds: 10
 
   instance:
     prefer-ip-address: false
