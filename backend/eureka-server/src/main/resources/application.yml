@@ -6,9 +6,15 @@ spring:
     name: eureka-server
 
 eureka:
+  instance:
+    hostname: eureka-server-ppq0.onrender.com
+    prefer-ip-address: false
+
   client:
     register-with-eureka: false
     fetch-registry: false
+    service-url:
+      defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
 
   server:
     enable-self-preservation: true
