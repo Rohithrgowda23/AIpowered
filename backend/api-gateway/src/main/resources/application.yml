@@ -1,75 +1,70 @@
-server:
-  port: ${PORT:8080}
 
-spring:
-  application:
-    name: api-gateway
+  server:
+    port: ${PORT:8080}
 
-  config:
-    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+  spring:
+    application:
+      name: api-gateway
 
-  cloud:
-    config:
-      retry:
-        max-attempts: 6
-        initial-interval: 2000
-        max-interval: 10000
-        multiplier: 1.5
+    cloud:
+      config:
+        enabled: false
 
-    gateway:
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/auth/**
+      gateway:
+        routes:
+          - id: auth-service
+            uri: lb://auth-service
+            predicates:
+              - Path=/api/auth/**
 
-        - id: oauth2-authorization
-          uri: lb://auth-service
-          predicates:
-            - Path=/oauth2/**
+          - id: oauth2-authorization
+            uri: lb://auth-service
+            predicates:
+              - Path=/oauth2/**
 
-        - id: oauth2-callback
-          uri: lb://auth-service
-          predicates:
-            - Path=/login/oauth2/**
+          - id: oauth2-callback
+            uri: lb://auth-service
+            predicates:
+              - Path=/login/oauth2/**
 
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/api/users/**
+          - id: user-service
+            uri: lb://user-service
+            predicates:
+              - Path=/api/users/**
 
-        - id: analysis-service
-          uri: lb://analysis-service
-          predicates:
-            - Path=/api/analyses/**
+          - id: analysis-service
+            uri: lb://analysis-service
+            predicates:
+              - Path=/api/analyses/**
 
-        - id: report-service
-          uri: lb://report-service
-          predicates:
-            - Path=/api/reports/**
+          - id: report-service
+            uri: lb://report-service
+            predicates:
+              - Path=/api/reports/**
 
-        - id: job-service
-          uri: lb://job-service
-          predicates:
-            - Path=/api/jobs/**
+          - id: job-service
+            uri: lb://job-service
+            predicates:
+              - Path=/api/jobs/**
 
-    loadbalancer:
-      cache:
-        ttl: 5s
+      loadbalancer:
+        cache:
+          ttl: 5s
 
-eureka:
-  client:
-    service-url:
-      defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
-    fetch-registry: true
-    register-with-eureka: true
-    registry-fetch-interval-seconds: 10
+  eureka:
+    client:
+      service-url:
+        defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
+      fetch-registry: true
+      register-with-eureka: true
+      registry-fetch-interval-seconds: 10
 
-  instance:
-    prefer-ip-address: false
-    hostname: api-gateway-tin9.onrender.com
-    non-secure-port-enabled: false
-    secure-port-enabled: true
-    secure-port: 443
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 30
+    instance:
+      prefer-ip-address: false
+      hostname: api-gateway-tin9.onrender.com
+      non-secure-port-enabled: false
+      secure-port-enabled: true
+      secure-port: 443
+      lease-renewal-interval-in-seconds: 10
+      lease-expiration-duration-in-seconds: 30
+
