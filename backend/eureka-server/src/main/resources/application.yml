@@ -16,7 +16,8 @@ eureka:
     service-url:
       defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
 
-  server:
-    enable-self-preservation: true
-    eviction-interval-timer-in-ms: 10000
-    response-cache-update-interval-ms: 5000
+  eureka:
+    server:
+      enable-self-preservation: true
+      eviction-interval-timer-in-ms: 60000
+      response-cache-update-interval-ms: 5000
