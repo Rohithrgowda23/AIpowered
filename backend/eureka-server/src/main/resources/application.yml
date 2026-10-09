@@ -1,3 +1,4 @@
+
 server:
   port: ${PORT:8761}
 
@@ -13,11 +14,18 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
-    service-url:
-      defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
 
-  eureka:
-    server:
-      enable-self-preservation: true
-      eviction-interval-timer-in-ms: 60000
-      response-cache-update-interval-ms: 5000
+  server:
+    enable-self-preservation: true
+    eviction-interval-timer-in-ms: 60000
+    response-cache-update-interval-ms: 5000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
