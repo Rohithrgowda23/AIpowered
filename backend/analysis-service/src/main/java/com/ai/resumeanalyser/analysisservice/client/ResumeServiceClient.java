@@ -1,6 +1,8 @@
 package com.ai.resumeanalyser.analysisservice.client;
 
 import com.ai.resumeanalyser.analysisservice.dto.ResumeParseResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
@@ -11,6 +13,8 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,11 +22,16 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class ResumeServiceClient {
 
+    private static final Logger log = LoggerFactory.getLogger(ResumeServiceClient.class);
+
+    // A sleeping free-tier Render service needs about a minute to wake up.
+    private static final long MAX_WAIT_MS = 150_000L;
+    private static final long RETRY_DELAY_MS = 10_000L;
+
     private final RestTemplate restTemplate;
     private final String baseUrl;
 
     public ResumeServiceClient(@Value("${resume-service.base-url}") String baseUrl) {
-        // Generous read timeout: a sleeping Render service needs time to wake up.
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(10_000);
         requestFactory.setReadTimeout(120_000);
@@ -49,10 +58,44 @@ public class ResumeServiceClient {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        var response = restTemplate.postForEntity(url, requestEntity, ResumeParseResponse.class);
-        if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
-            throw new RestClientException("resume-service returned " + response.getStatusCode());
+        long deadline = System.currentTimeMillis() + MAX_WAIT_MS;
+
+        for (int attempt = 1; ; attempt++) {
+            try {
+                var response = restTemplate.postForEntity(url, requestEntity, ResumeParseResponse.class);
+                if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
+                    throw new RestClientException("resume-service returned " + response.getStatusCode());
+                }
+                return response.getBody();
+            } catch (RestClientException e) {
+                if (!isTransient(e) || System.currentTimeMillis() + RETRY_DELAY_MS >= deadline) {
+                    throw e;
+                }
+                log.warn("resume-service not ready (attempt {}): {} - retrying in {}s",
+                        attempt, e.getMessage(), RETRY_DELAY_MS / 1000);
+                pause();
+            }
         }
-        return response.getBody();
+    }
+
+    // 429/502/503/504 or a connection problem usually means the service is still waking up.
+    private static boolean isTransient(RestClientException e) {
+        if (e instanceof ResourceAccessException) {
+            return true;
+        }
+        if (e instanceof HttpStatusCodeException statusException) {
+            int status = statusException.getStatusCode().value();
+            return status == 429 || status == 502 || status == 503 || status == 504;
+        }
+        return false;
+    }
+
+    private static void pause() {
+        try {
+            Thread.sleep(RETRY_DELAY_MS);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new RestClientException("Interrupted while waiting for resume-service");
+        }
     }
 }
