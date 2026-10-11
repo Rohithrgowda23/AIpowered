@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(name = "report-service")
+// url=... calls report-service directly by its public URL (no Eureka lookup),
+// so a sleeping report-service is woken by the request itself.
+@FeignClient(name = "report-service", url = "${report-service.base-url}")
 public interface ReportClient {
 
     @PostMapping("/internal/reports")
