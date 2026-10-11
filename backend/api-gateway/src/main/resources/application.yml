@@ -10,39 +10,44 @@ spring:
       enabled: false
 
     gateway:
+      httpclient:
+        connect-timeout: 10000
+        response-timeout: 120s
+
       routes:
         - id: auth-service
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URL:https://auth-service-p0ex.onrender.com}
           predicates:
             - Path=/api/auth/**
 
         - id: oauth2-authorization
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URL:https://auth-service-p0ex.onrender.com}
           predicates:
             - Path=/oauth2/**
 
         - id: oauth2-callback
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URL:https://auth-service-p0ex.onrender.com}
           predicates:
             - Path=/login/oauth2/**
 
+        # No user-service module exists in the repository; left unchanged.
         - id: user-service
           uri: lb://user-service
           predicates:
             - Path=/api/users/**
 
         - id: analysis-service
-          uri: lb://analysis-service
+          uri: ${ANALYSIS_SERVICE_URL:https://analysis-service-qf75.onrender.com}
           predicates:
             - Path=/api/analyses/**
 
         - id: report-service
-          uri: lb://report-service
+          uri: ${REPORT_SERVICE_URL:https://report-service-fvcz.onrender.com}
           predicates:
             - Path=/api/reports/**
 
         - id: job-service
-          uri: lb://job-service
+          uri: ${JOB_SERVICE_URL:https://job-service-oyk8.onrender.com}
           predicates:
             - Path=/api/jobs/**
 
