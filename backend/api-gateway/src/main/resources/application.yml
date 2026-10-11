@@ -1,70 +1,79 @@
+server:
+  port: ${PORT:8080}
 
-  server:
-    port: ${PORT:8080}
+spring:
+  application:
+    name: api-gateway
 
-  spring:
-    application:
-      name: api-gateway
+  cloud:
+    config:
+      enabled: false
 
-    cloud:
-      config:
-        enabled: false
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
 
-      gateway:
-        routes:
-          - id: auth-service
-            uri: lb://auth-service
-            predicates:
-              - Path=/api/auth/**
+        - id: oauth2-authorization
+          uri: lb://auth-service
+          predicates:
+            - Path=/oauth2/**
 
-          - id: oauth2-authorization
-            uri: lb://auth-service
-            predicates:
-              - Path=/oauth2/**
+        - id: oauth2-callback
+          uri: lb://auth-service
+          predicates:
+            - Path=/login/oauth2/**
 
-          - id: oauth2-callback
-            uri: lb://auth-service
-            predicates:
-              - Path=/login/oauth2/**
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
 
-          - id: user-service
-            uri: lb://user-service
-            predicates:
-              - Path=/api/users/**
+        - id: analysis-service
+          uri: lb://analysis-service
+          predicates:
+            - Path=/api/analyses/**
 
-          - id: analysis-service
-            uri: lb://analysis-service
-            predicates:
-              - Path=/api/analyses/**
+        - id: report-service
+          uri: lb://report-service
+          predicates:
+            - Path=/api/reports/**
 
-          - id: report-service
-            uri: lb://report-service
-            predicates:
-              - Path=/api/reports/**
+        - id: job-service
+          uri: lb://job-service
+          predicates:
+            - Path=/api/jobs/**
 
-          - id: job-service
-            uri: lb://job-service
-            predicates:
-              - Path=/api/jobs/**
+    loadbalancer:
+      cache:
+        ttl: 5s
 
-      loadbalancer:
-        cache:
-          ttl: 5s
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:https://eureka-server-ppq0.onrender.com/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+    registry-fetch-interval-seconds: 10
 
-  eureka:
-    client:
-      service-url:
-        defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
-      fetch-registry: true
-      register-with-eureka: true
-      registry-fetch-interval-seconds: 10
+  instance:
+    prefer-ip-address: false
+    hostname: ${RENDER_EXTERNAL_HOSTNAME:api-gateway-tin9.onrender.com}
+    non-secure-port-enabled: false
+    secure-port-enabled: true
+    secure-port: 443
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
 
-    instance:
-      prefer-ip-address: false
-      hostname: api-gateway-tin9.onrender.com
-      non-secure-port-enabled: false
-      secure-port-enabled: true
-      secure-port: 443
-      lease-renewal-interval-in-seconds: 10
-      lease-expiration-duration-in-seconds: 30
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never

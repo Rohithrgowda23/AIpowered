@@ -31,10 +31,14 @@ public class JwtPreCheckFilter implements WebFilter, Ordered {
     @Value("${JWT_SECRET:}")
     private String jwtSecret;
 
+    // Paths that must work WITHOUT a token.
+    // /actuator/health* is needed so Render's health check (and uptime pingers) get a 200.
     private static final List<String> PUBLIC_PREFIXES = List.of(
             "/api/auth/",
             "/oauth2/",
-            "/login/oauth2/"
+            "/login/oauth2/",
+            "/actuator/health",
+            "/actuator/info"
     );
 
     @Override
@@ -56,8 +60,9 @@ public class JwtPreCheckFilter implements WebFilter, Ordered {
         }
 
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        log.info("GATEWAY AUTH HEADER: {}", authHeader);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // Never log the header value itself - it contains the user's JWT.
+            log.debug("Gateway: no bearer token on {}", path);
             return unauthorized(exchange, "Missing bearer token");
         }
 
@@ -73,7 +78,7 @@ public class JwtPreCheckFilter implements WebFilter, Ordered {
                     .build()
                     .parseSignedClaims(token); // throws if signature invalid or token expired
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("GATEWAY JWT VALIDATION FAILED: {}", e.getMessage(), e);
+            log.warn("Gateway JWT rejected for {}: {}", path, e.getMessage());
             return unauthorized(exchange, "Invalid or expired token");
         }
 
