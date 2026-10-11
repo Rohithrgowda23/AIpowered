@@ -26,20 +26,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
-
-        System.out.println("ANALYSIS SERVICE AUTH HEADER: " + authHeader);
-
+        // Never print the Authorization header or user details: they contain the login token.
         if (!"OPTIONS".equalsIgnoreCase(request.getMethod())) {
 
+            String authHeader = request.getHeader("Authorization");
             var email = validator.validateAndGetEmail(authHeader);
 
-            System.out.println("JWT VALIDATION RESULT: " + email);
-
             email.ifPresent(userEmail -> {
-
-                System.out.println("AUTHENTICATED USER: " + userEmail);
-
                 var authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userEmail,
@@ -51,11 +44,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         .setAuthentication(authentication);
             });
         }
-
-        System.out.println(
-                "SECURITY CONTEXT AUTHENTICATION: " +
-                        SecurityContextHolder.getContext().getAuthentication()
-        );
 
         filterChain.doFilter(request, response);
     }
