@@ -6,33 +6,71 @@ spring:
   application:
     name: auth-service
 
+  # OPTIONAL: if the Config Server is asleep or answers 429, auth-service still
+  # starts with the settings in this file. Remote values (if any) override these.
   config:
-    import: configserver:${CONFIG_SERVER_URL:http://localhost:8888}
-
-    cloud:
-      config:
-        retry:
-          max-attempts: 6
-          initial-interval: 2000
-          max-interval: 10000
-          multiplier: 1.5
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
   datasource:
+    url: "${DATABASE_URL:jdbc:postgresql://dpg-danppr3m8hqs73c4qc5g-a:5432/ai_resume_analyser_ioxq}"
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "${GATEWAY_PUBLIC_URL:https://api-gateway-tin9.onrender.com}/login/oauth2/code/{registrationId}"
+
+jwt:
+  secret: ${JWT_SECRET}
+
+frontend:
+  base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
+
+notification-service:
+  base-url: ${NOTIFICATION_SERVICE_URL:http://localhost:8086}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
+      defaultZone: ${EUREKA_SERVER_URL:https://eureka-server-ppq0.onrender.com/eureka/}
     fetch-registry: true
     register-with-eureka: true
 
   instance:
     prefer-ip-address: false
-    hostname: auth-service-p0ex.onrender.com
+    hostname: ${RENDER_EXTERNAL_HOSTNAME:auth-service-p0ex.onrender.com}
     non-secure-port-enabled: false
     secure-port-enabled: true
     secure-port: 443
     lease-renewal-interval-in-seconds: 10
     lease-expiration-duration-in-seconds: 90
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
