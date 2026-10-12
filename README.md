@@ -1,242 +1,217 @@
-# AI Resume Analyser — Microservices Architecture
+# AI Resume Analyser
 
-> **Status: NOT VERIFIED.** Every service here was written by hand-migrating
-> the original monolith's code (`ResumeBackend/`, kept alongside this as the
-> working fallback - see "Migration status" below). I had no `mvn`, no cached
-> Maven dependencies, and no access to Maven Central in the environment this
-> was built in, so **none of this backend code has been compiled, let alone
-> run.** Brace-balance and structural checks pass; that is not the same as a
-> successful build. Run `mvn clean compile` in every `backend/*` folder
-> before trusting any of it. The frontend, by contrast, **has** been built
-> and linted successfully (`npm run build`, 0 errors).
+An AI-powered resume feedback app. Upload your resume (optionally with a job description) and get an overall score, an ATS-optimisation score, a skills and missing-skills breakdown, and matching job recommendations.
+
+Built as **Spring Boot microservices** behind an API Gateway, with a **React + Vite** frontend.
+
+**Live demo:** https://ai-powered-teal.vercel.app
+
+> The backend runs on free hosting tiers, which put idle services to sleep. The first request after a quiet period can take about a minute while services wake up. See [Free-tier behaviour](#free-tier-behaviour).
+
+---
+
+## Features
+
+- **Sign in with Google** (OAuth2) or **email + password** with OTP email verification
+- **Forgot-password** flow with OTP email
+- **Resume upload** (PDF, DOC, DOCX, up to 2 MB) with an optional job description
+- **AI analysis** with Google Gemini: overall score, ATS-optimisation score, summary, skills, missing skills
+- **Live progress**: analysis runs in the background and the page shows its status as it moves along
+- **Job recommendations** from the Adzuna API, based on the analysed resume
+- **Delete account**: removes the user and their saved report
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite 7, React Router 7, react-toastify (hosted on Vercel) |
+| Backend | Java 17, Spring Boot 3.5, Spring Cloud 2025.0 (Gateway, Netflix Eureka, Config Server, OpenFeign) |
+| Security | Spring Security, JWT (HS256), Google OAuth2 |
+| Database | PostgreSQL (Spring Data JPA / Hibernate) |
+| AI | Google Gemini (`gemini-2.5-flash`) |
+| Resume parsing | Apache Tika |
+| Email | Brevo transactional email API, Thymeleaf templates |
+| Jobs | Adzuna API |
+| Build / deploy | Maven, Docker, Render (backend), Vercel (frontend) |
 
 ## Architecture
 
-```text
-                    ┌──────────────────────┐
-                    │     React + Vite     │  :5173
-                    └──────────┬───────────┘
-                               │ VITE_API_URL
-                               ▼
-                    ┌──────────────────────┐
-                    │     API Gateway      │  :8080
-                    │  (routing, CORS,     │
-                    │   JWT pre-check)     │
-                    └──────────┬───────────┘
-                               │
-          ┌────────────────────┼─────────────────────┬───────────────┐
-          ▼                    ▼                     ▼               ▼
- ┌────────────────┐   ┌────────────────┐   ┌────────────────┐  ┌─────────────┐
- │  auth-service   │   │ resume-service │   │analysis-service│  │ job-service │
- │     :8081       │   │     :8082      │   │     :8083      │  │    :8085    │
- └───────┬─────────┘   └────────────────┘   └───────┬────────┘  └──────┬──────┘
-         │                                            │                 ▲
-         │ (internal)                    ┌────────────┼─────────────┐   │
-         ▼                                ▼            ▼             │   │
- ┌─────────────────┐              ┌─────────────┐ ┌──────────────┐  │   │
- │ notification-svc │              │  Gemini AI  │ │report-service│──┘   │
- │      :8086       │              └─────────────┘ │    :8084     │──────┘
- └─────────────────┘                                └──────────────┘
+```mermaid
+flowchart LR
+    U["Browser<br/>React + Vite"] --> G["API Gateway"]
 
-          ┌───────────────────────┐   ┌──────────────────────┐
-          │ eureka-server  :8761  │   │  config-server :8888  │
-          └───────────────────────┘   └──────────────────────┘
+    G --> A["auth-service"]
+    G --> AN["analysis-service"]
+    G --> R["report-service"]
+    G --> J["job-service"]
 
-                          ┌───────────────┐
-                          │     MySQL     │  :3306
-                          └───────────────┘
+    AN --> RS["resume-service"]
+    AN --> GM(["Gemini API"])
+    AN --> R
+    A --> N["notification-service"]
+    A --> R
+    N --> B(["Brevo email API"])
+    R --> J
+    R --> A
+    J --> AD(["Adzuna API"])
+
+    A --> DB[("PostgreSQL")]
+    AN --> DB
+    R --> DB
+
+    E["eureka-server"] -.- G
+    C["config-server"] -.- A
 ```
 
-No Redis - nothing in this codebase has a real use case for it yet (see
-`docs/microservices-migration-design.md` §20/§28 for the reasoning).
-
-## Migration status
-
-The original monolith is untouched at `ResumeBackend/` and still works on
-its own (it already got a same-repo async-analysis fix in an earlier pass -
-see its own code comments). This microservices split is **new, parallel,
-unverified code** in `backend/*` - per the strangler-fig approach in
-`docs/microservices-migration-design.md`, don't delete the monolith until
-you've actually built and exercised this new stack.
-
-| Original class | New home | Status |
+| Service | Port | Responsibility |
 |---|---|---|
-| `UsersTable`, `OtpVerify`, `JwtService(Impl)`, `JwtFilter`, `SecurityConfiguration`, `SuccessHandler`, `FailureHandler`, `SecurityController` | `auth-service` | Migrated |
-| `MailServiceImpl` + Thymeleaf templates | `notification-service` | Migrated |
-| Tika parsing | `resume-service` | Migrated |
-| `AnalysisJob`, `AnalysisWorker`, Gemini call | `analysis-service` | Migrated (adapted to call resume-service/report-service instead of local repos) |
-| `PreviousTable`, `PrevTableRepo` | `report-service` | Migrated, table name preserved (`previous_table`) |
-| Adzuna integration (`fetchAdzunaJobsWithFallback`) | `job-service` | Migrated verbatim (same 3-tier fallback) |
-| `AppController`'s `/logout`, `/delete-account`, `/validate-token` | `auth-service` | Migrated |
+| `api-gateway` | 8080 | Routing, CORS, JWT pre-check |
+| `auth-service` | 8081 | Google login, signup/OTP, password reset, JWT issue and validation, account deletion |
+| `resume-service` | 8082 | Extracts text from PDF/DOC/DOCX (Apache Tika) |
+| `analysis-service` | 8083 | Creates analysis jobs, runs them in the background, calls Gemini, reports progress |
+| `report-service` | 8084 | Stores each user's latest report and attaches job recommendations |
+| `job-service` | 8085 | Searches Adzuna, with fallback queries |
+| `notification-service` | 8086 | Sends OTP emails through Brevo |
+| `eureka-server` | 8761 | Service registry |
+| `config-server` | 8888 | Shared configuration (served from `config-repo`) |
 
-**Explicitly not implemented** (see README §"What's scoped out" below):
-GitHub OAuth (never actually existed in the monolith despite being mentioned
-throughout the migration brief - only Google was configured), report
-history/list/delete (`PreviousTable.email` is the primary key - only one
-report per user ever existed; see design doc §5), Flyway migrations, and a
-per-service automated test suite.
+Service-to-service calls go directly to each service's public URL (set through environment variables), and each service can start without the Config Server, so a sleeping or slow service doesn't stop the others from booting.
 
-## Service ports
+### How an analysis works
 
-| Service | Port | Purpose |
+1. The browser sends the resume (and optional job description) to `POST /api/analyses` with the user's JWT. The API answers immediately with a job id.
+2. In the background, `analysis-service` sends the file to `resume-service`, which extracts the text.
+3. `analysis-service` asks Gemini for a structured JSON result: score, ATS-optimisation score, summary, skills and missing skills.
+4. The result is saved through `report-service` (one latest report per user).
+5. The frontend polls `GET /api/analyses/{id}/status`, then loads `GET /api/reports/latest`. `report-service` adds job recommendations from `job-service`.
+
+### API overview (through the Gateway)
+
+| Method | Path | Purpose |
 |---|---|---|
-| frontend | 5173 | React/Vite |
-| api-gateway | 8080 | Public entry point |
-| auth-service | 8081 | JWT, OAuth, OTP, account |
-| resume-service | 8082 | Upload + Tika parsing |
-| analysis-service | 8083 | Async Gemini analysis |
-| report-service | 8084 | Report storage/retrieval |
-| job-service | 8085 | Adzuna job search |
-| notification-service | 8086 | Email/OTP delivery |
-| config-server | 8888 | Centralized config |
-| eureka-server | 8761 | Service registry |
-| MySQL | 3306 | Shared database (see below) |
+| GET | `/oauth2/authorization/google` | Start Google login |
+| POST | `/api/auth/verify-email` | Send signup OTP |
+| POST | `/api/auth/register` | Create account with OTP |
+| POST | `/api/auth/login` | Email + password login |
+| POST | `/api/auth/send-reset-otp`, `/verify-reset-otp`, `/reset-password` | Password reset |
+| POST | `/api/auth/validate-token`, `/logout` | Session handling |
+| DELETE | `/api/auth/delete-account` | Delete account and report |
+| POST | `/api/analyses` | Start an analysis (multipart: `file`, `jobDescription`) |
+| GET | `/api/analyses/{id}/status` | Analysis progress |
+| GET | `/api/reports/latest` | Latest report with job recommendations |
+| POST | `/api/jobs/search` | Job search |
 
-## Database
-
-All services currently point at **the same MySQL database**
-(`resume_analyser`), each JPA-managing only its own entities - not a full
-schema-per-service split yet. This was a deliberate choice, not an
-oversight: a real split is higher-risk than I could respondsibly do without
-being able to compile or test any of it. See design doc §5/§18 for the
-reasoning and what a real split would require. `previous_table`, `users_table`,
-and `otp_verify` keep their exact original names/columns, so existing data
-from the monolith is preserved and immediately usable.
-
-Set `spring.jpa.hibernate.ddl-auto: update` (already the default in every
-service's config) will create the new `analysis_job` table automatically on
-first boot - it's new, additive, and safe.
-
-## Local setup
-
-### Prerequisites
-Java 17, Maven, Node 20+, MySQL running locally (or via the Docker Compose
-file below), and real API keys for Gemini/Adzuna/Brevo/Google OAuth (**not**
-the ones that were in the original `application.properties` - rotate those,
-see the security note in the design doc).
-
-### Environment variables
-```bash
-cp .env.example .env
-# fill in every value in .env
-```
-See `.env.example` for the full list.
-
-### Run without Docker (each in its own terminal)
-```bash
-cd backend/eureka-server && mvn spring-boot:run
-cd backend/config-server && mvn spring-boot:run       # after eureka-server is up
-cd backend/notification-service && mvn spring-boot:run
-cd backend/resume-service && mvn spring-boot:run
-cd backend/job-service && mvn spring-boot:run
-cd backend/auth-service && mvn spring-boot:run
-cd backend/analysis-service && mvn spring-boot:run
-cd backend/report-service && mvn spring-boot:run
-cd backend/api-gateway && mvn spring-boot:run          # after every service above is up
-cd frontend && npm install && npm run dev
-```
-Start order matters loosely (gateway last, eureka/config first) but every
-service's `spring.config.import` is `optional:configserver:...`, so a
-missing config-server never blocks startup - it can only override values,
-never require them.
-
-### Run with Docker Compose
-```bash
-docker compose up --build
-```
-**NOT VERIFIED** - see the Dockerfiles' own comments. No Docker daemon was
-available to test this here.
-
-## API contracts (via the gateway)
+## Project structure
 
 ```text
-POST /api/auth/register
-POST /api/auth/login
-POST /api/auth/verify-email
-POST /api/auth/send-reset-otp
-POST /api/auth/verify-reset-otp
-POST /api/auth/reset-password
-POST /api/auth/logout                 (auth required)
-DELETE /api/auth/delete-account       (auth required)
-POST /api/auth/validate-token         (auth required)
-GET  /oauth2/authorization/google     (OAuth redirect)
-
-POST /api/analyses                    (auth required, multipart: roles, jobDescription, file)
-     -> 202 { analysisId, status: "QUEUED" }
-GET  /api/analyses/{id}/status        (auth required, owner-only)
-     -> { analysisId, status, progress, message, errorMessage, reportReady }
-
-GET  /api/reports/latest              (auth required)
-
-POST /api/jobs/search                 (auth required)
+ai-resume-analyser/
+├── backend/
+│   ├── api-gateway/
+│   ├── auth-service/
+│   ├── analysis-service/
+│   ├── resume-service/
+│   ├── report-service/
+│   ├── job-service/
+│   ├── notification-service/
+│   ├── eureka-server/
+│   └── config-server/        # config-repo/ holds the shared configuration files
+├── frontend/                 # React + Vite app
+├── docs/
+└── README.md
 ```
 
-## Resume analysis flow
+## Configuration
 
-```text
-Frontend
-  │ POST /api/analyses (file, role, jobDescription)
-  ▼
-API Gateway → analysis-service
-  │ creates AnalysisJob (QUEUED), returns immediately
-  │
-  │ (background thread)
-  ├─ calls resume-service to parse the file → extracted text
-  ├─ calls Gemini directly (bounded retries, never blocks the original request)
-  ├─ on success: calls report-service to persist the result
-  └─ updates AnalysisJob.status at every stage
+Secrets are never committed. Every service reads its settings from **environment variables**; the names are listed below (values are yours to set).
 
-Frontend polls GET /api/analyses/{id}/status every ~1.5s until COMPLETED/FAILED
-  │
-  ▼ (on COMPLETED)
-GET /api/reports/latest → report-service
-  │ calls job-service for matching jobs (failure here never fails the report -
-  │ falls back to jobs: [] + an explanatory message)
-  ▼
-Report displayed
-```
+| Service | Variables |
+|---|---|
+| `api-gateway` | `JWT_SECRET`, `CORS_ALLOWED_ORIGINS`; optional `AUTH_SERVICE_URL`, `ANALYSIS_SERVICE_URL`, `REPORT_SERVICE_URL`, `JOB_SERVICE_URL`, `EUREKA_SERVER_URL` |
+| `auth-service` | `DATABASE_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `INTERNAL_API_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `FRONTEND_BASE_URL`, `NOTIFICATION_SERVICE_URL`; optional `GATEWAY_PUBLIC_URL` |
+| `analysis-service` | `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `GEMINI_API_KEY`, `JWT_SECRET`, `INTERNAL_API_KEY`, `RESUME_SERVICE_URL`, `REPORT_SERVICE_URL` |
+| `resume-service` | `JWT_SECRET` |
+| `report-service` | `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `JWT_SECRET`, `INTERNAL_API_KEY`, `JOB_SERVICE_URL` |
+| `job-service` | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `JWT_SECRET`; optional `ADZUNA_COUNTRY` (default `gb`) |
+| `notification-service` | `BREVO_API_KEY`, `INTERNAL_API_KEY` |
+| All services | `CONFIG_SERVER_URL`, `EUREKA_SERVER_URL` (must end with `/eureka/`) |
+| Frontend (Vercel) | `VITE_API_URL` (the Gateway's URL); optional `VITE_WARMUP_URLS` (comma-separated health URLs to wake services when the site opens) |
 
-This is the same async fix built in the previous session
-(`AnalysisJob`/`AnalysisWorker`/polling), now split across service
-boundaries rather than living in one process.
+Important:
 
-## Security notes
+- `JWT_SECRET` must be **identical** on every service that has it, and at least 32 characters.
+- `INTERNAL_API_KEY` must be **identical** on auth, analysis, report and notification services.
+- The Gemini, Brevo, Adzuna and Google credentials are your own accounts' keys.
 
-- JWT is validated **independently by every service that needs identity**
-  (auth-service, resume-service, analysis-service, report-service,
-  job-service each carry their own small validator), not trusted from a
-  gateway-set header - see design doc §6/§9 for why.
-- Internal-only endpoints (account deletion cascade, report save, the
-  `previousResults` flag update) are guarded by a shared `INTERNAL_API_KEY`
-  header and are **not** reachable through the gateway's public route table.
-- CORS is configured **only** at the gateway.
-- **Rotate every credential that was in the original monolith's
-  `application.properties`** - see the top of this README and the design doc.
+## Run locally
 
-## What's scoped out (told you rather than faked)
+**Prerequisites:** JDK 17, Maven 3.9+, Node 20+, a local PostgreSQL database.
 
-- Flyway migrations - `ddl-auto: update` is used instead, which is fine for
-  this migration but isn't how you'd want to manage schema changes long-term.
-- Per-service automated test suites - none were added. `mvn clean test` will
-  currently just run (or fail to find) whatever default test scaffolding
-  Spring Initializr would generate; no real tests were written for any service.
-- A real schema-per-service split - see Database section above.
-- Report history (list/get-by-id/delete) - blocked on the same schema
-  constraint, see design doc §5.
-- GitHub OAuth - was never actually implemented in the original monolith
-  despite being mentioned throughout the request; only a placeholder config
-  key exists.
-- Circuit breakers - not added (§28 says not to over-engineer; nothing here
-  has hit a failure mode yet that a bounded retry + graceful fallback, both
-  of which do exist, wouldn't already handle).
+1. **Create a database** and set the variables above for each service (for example in your shell or IDE run configuration).
+2. **Point the Gateway at local services**, because its defaults are the deployed URLs:
 
-## Further reading
+   ```text
+   AUTH_SERVICE_URL=http://localhost:8081
+   ANALYSIS_SERVICE_URL=http://localhost:8083
+   REPORT_SERVICE_URL=http://localhost:8084
+   JOB_SERVICE_URL=http://localhost:8085
+   RESUME_SERVICE_URL=http://localhost:8082
+   NOTIFICATION_SERVICE_URL=http://localhost:8086
+   ```
 
-`docs/microservices-migration-design.md` has the full rationale for every
-architectural decision above (why shared DB, why gateway doesn't set trust
-headers, why job search is decoupled from analysis, sequencing for an
-incremental real-world rollout, etc).
-#   A I p o w e r e d  
- #   A I p o w e r e d  
- #   A I p o w e r e d  
- 
+3. **Start the services** (each in its own terminal). Eureka and the Config Server are optional locally: services start without them and only log warnings.
+
+   ```bash
+   cd backend/<service>
+   mvn spring-boot:run
+   ```
+
+4. **Start the frontend:**
+
+   ```bash
+   cd frontend
+   echo VITE_API_URL=http://localhost:8080 > .env
+   npm install
+   npm run dev
+   ```
+
+   The app opens at http://localhost:5173 (already allowed by the Gateway's default CORS setting).
+
+For Google login locally, add `http://localhost:8080/login/oauth2/code/google` as an authorised redirect URI in Google Cloud Console and set `GATEWAY_PUBLIC_URL=http://localhost:8080` and `FRONTEND_BASE_URL=http://localhost:5173` on `auth-service`.
+
+> `docker-compose.yml` and `docs/microservices-migration-design.md` come from an earlier stage of the project (the compose file is written for MySQL). They don't describe the deployed setup.
+
+## Deployment
+
+**Backend (Render, one Docker web service per module)**
+
+- Root Directory: `backend/<service>`; the service's own `Dockerfile` is used.
+- Health Check Path: `/actuator/health/liveness` (use `/actuator/health` for `notification-service`).
+- Set the environment variables from the table above.
+- The Dockerfiles download Maven dependencies from Google's Maven Central mirror, because Maven Central rate-limits shared build servers (HTTP 429).
+- Deploy a few services at a time, not all at once.
+
+**Frontend (Vercel)**
+
+- Root Directory: `frontend`, framework preset: Vite.
+- Environment variable `VITE_API_URL` = the API Gateway's public URL.
+- Add that Vercel domain (and the deployment-URL pattern for the project) to `CORS_ALLOWED_ORIGINS` on the Gateway.
+
+## Free-tier behaviour
+
+- Render **spins down free services after 15 minutes without traffic**, and waking one takes about a minute. The services retry calls to a sleeping service for a couple of minutes, and the frontend sends background requests on page load to wake the ones the sign-in flow needs.
+- All free services in a Render workspace **share 750 instance hours per month**.
+- A free Render Postgres database **expires 30 days after creation** unless upgraded.
+
+## Known limitations
+
+- `PreviousTable.email` is the primary key, so only the **latest report per user** is kept (no report history).
+- Only Google is configured for social login.
+- `report-service`'s calls to `auth-service` still go through Eureka lookup by name; they only mark that a user has a previous result.
+- There is no automated test suite yet.
+
+## Author
+
+**Rohith R Gowda** — Java Full Stack Developer
+
+- GitHub: [Rohithrgowda23](https://github.com/Rohithrgowda23)
+- LinkedIn: [rohithrgowda](https://linkedin.com/in/rohithrgowda)
