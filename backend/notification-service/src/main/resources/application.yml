@@ -6,28 +6,31 @@ spring:
     name: notification-service
 
   config:
-    import: configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
-    cloud:
-      config:
-        retry:
-          max-attempts: 6
-          initial-interval: 2000
-          max-interval: 10000
-          multiplier: 1.5
+apiKey: ${BREVO_API_KEY}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: https://eureka-server-ppq0.onrender.com/eureka/
+      defaultZone: ${EUREKA_SERVER_URL:https://eureka-server-ppq0.onrender.com/eureka/}
     fetch-registry: true
     register-with-eureka: true
 
   instance:
     prefer-ip-address: false
-    hostname: notification-service-oooz.onrender.com
+    hostname: ${RENDER_EXTERNAL_HOSTNAME:notification-service-oooz.onrender.com}
     non-secure-port-enabled: false
     secure-port-enabled: true
     secure-port: 443
     lease-renewal-interval-in-seconds: 10
     lease-expiration-duration-in-seconds: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
