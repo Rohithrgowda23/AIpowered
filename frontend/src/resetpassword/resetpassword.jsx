@@ -82,19 +82,19 @@ function Forgotpassword() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                email
+                email: email.trim()
             })
         })
-            .then(response => {
+            .then(async response => {
                 if (response.ok) {
                     toast.success("OTP sent successfully")
-                    setisloading(false)
                     setisemailpresent(true)
                 }
                 else {
-                    toast.error("Invalid email")
-                    setisloading(false)
+                    const text = await response.text()
+                    toast.error(text || "Couldn't send OTP. Please try again.")
                 }
+                setisloading(false)
             })
             .catch(() => {
                 toast.error("Verification failed")
